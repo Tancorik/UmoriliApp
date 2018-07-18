@@ -16,6 +16,7 @@
         android:id="@+id/posts_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+
         app:layoutManager="android.support.v7.widget.LinearLayoutManager"
         app:layout_constraintTop_toBottomOf="@id/category_tab_layout"
         app:layout_constraintBottom_toTopOf="@id/source_text_view"/>

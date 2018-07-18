@@ -15,6 +15,11 @@ import java.util.List;
 public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdapter.ViewHolder> {
 
     private List<String> mPostList = new ArrayList<>();
+    private AdapterCallback mCallback;
+
+    public void setCallback(AdapterCallback callback) {
+        mCallback = callback;
+    }
 
     @NonNull
     @Override
@@ -27,6 +32,11 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.mTextView.setText(mPostList.get(position));
+        holder.mTextView.setOnClickListener(view -> {
+            if (mCallback != null) {
+                mCallback.onPostClick(holder.getAdapterPosition());
+            }
+        });
     }
 
     @Override
@@ -47,5 +57,9 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             super(itemView);
             mTextView = itemView.findViewById(R.id.post_text_view);
         }
+    }
+
+    interface AdapterCallback {
+        void onPostClick(int position);
     }
 }

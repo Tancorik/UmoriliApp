@@ -12,7 +12,7 @@ import com.example.tancorik.umoriliapp.presentation.view.IMainScreenView;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements IMainScreenView{
+public class MainActivity extends AppCompatActivity implements IMainScreenView, PostsRecyclerAdapter.AdapterCallback {
 
     private MainScreenPresenter mPresenter;
     private TabLayout mTabLayout;
@@ -50,6 +50,12 @@ public class MainActivity extends AppCompatActivity implements IMainScreenView{
         dialog.show(getSupportFragmentManager(), dialog.getTag());
     }
 
+    @Override
+    public void onPostClick(int position) {
+        ClipboardDialog.newInstance(mPresenter.getPostByPosition(position))
+                .show(getSupportFragmentManager(), ClipboardDialog.TAG);
+    }
+
     private void init() {
         mTabLayout = findViewById(R.id.category_tab_layout);
         mPresenter = MainScreenPresenter.getInstance();
@@ -57,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements IMainScreenView{
         mPresenter.getCategory();
 
         mPostsRecyclerAdapter = new PostsRecyclerAdapter();
+        mPostsRecyclerAdapter.setCallback(this);
         mRecyclerView = findViewById(R.id.posts_recycler_view);
         mRecyclerView.setAdapter(mPostsRecyclerAdapter);
         List<String> stringList = mPresenter.getCurrentPosts();

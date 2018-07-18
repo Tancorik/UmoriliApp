@@ -46,6 +46,10 @@ public class MainScreenPresenter {
         mView.showCategory(mCategoryModels);
     }
 
+    public String getPostByPosition(int position) {
+        return mPostList.get(position);
+    }
+
     public List<String> getCurrentPosts() {
         return mPostList;
     }
