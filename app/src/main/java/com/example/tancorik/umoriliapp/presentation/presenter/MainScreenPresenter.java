@@ -3,7 +3,8 @@ package com.example.tancorik.umoriliapp.presentation.presenter;
 import android.support.annotation.NonNull;
 import android.text.Html;
 
-import com.example.tancorik.umoriliapp.data.RemotePostService;
+import com.example.tancorik.umoriliapp.application.UmoriliApp;
+import com.example.tancorik.umoriliapp.domain.IRemotePostService;
 import com.example.tancorik.umoriliapp.domain.IRemotePostServiceCallback;
 import com.example.tancorik.umoriliapp.presentation.model.CategoryModel;
 import com.example.tancorik.umoriliapp.presentation.model.PostModel;
@@ -11,6 +12,8 @@ import com.example.tancorik.umoriliapp.presentation.view.IMainScreenView;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 public class MainScreenPresenter {
 
@@ -20,12 +23,11 @@ public class MainScreenPresenter {
     private List<String> mPostList;
     private List<CategoryModel> mCategoryModels;
     private int mTabPosition;
+    private int mSelectedPostNumber;
+    @Inject IRemotePostService mRemotePostService;
 
-    public static MainScreenPresenter getInstance() {
-        return PresenterInstanceHolder.INSTANCE;
-    }
-
-    private MainScreenPresenter() {
+    public MainScreenPresenter() {
+        UmoriliApp.getComponent().inject(this);
         initCategoryList();
         mPostList = new ArrayList<>();
     }
@@ -46,8 +48,12 @@ public class MainScreenPresenter {
         mView.showCategory(mCategoryModels);
     }
 
-    public String getPostByPosition(int position) {
-        return mPostList.get(position);
+    public void setSelectedPost(int position) {
+        mSelectedPostNumber = position;
+    }
+
+    public String getSelectedPost() {
+        return mPostList.get(mSelectedPostNumber);
     }
 
     public List<String> getCurrentPosts() {
@@ -61,7 +67,7 @@ public class MainScreenPresenter {
     public void getNewPosts(int position) {
         mTabPosition = position;
         String category = mCategoryModels.get(position).getCategory();
-        RemotePostService.getInstance().getPostInfoByRubric(category, new IRemotePostServiceCallback() {
+        mRemotePostService.getPostInfoByRubric(category, new IRemotePostServiceCallback() {
             @Override
             public void onSuccess(List<PostModel> postingList) {
                 mPostList.clear();
@@ -83,9 +89,5 @@ public class MainScreenPresenter {
         mCategoryModels.add(new CategoryModel("bash", "bash"));
         mCategoryModels.add(new CategoryModel("new+anekdot", "Анекдоты"));
         mCategoryModels.add(new CategoryModel("new+aforizm", "Афоризмы"));
-    }
-
-    private static class PresenterInstanceHolder {
-        private static final MainScreenPresenter INSTANCE = new MainScreenPresenter();
     }
 }

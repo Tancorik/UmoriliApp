@@ -23,17 +23,12 @@ import java.util.List;
 public class RemotePostService implements IRemotePostService {
 
     private static final String LOG_TAG = "RemotePostServiceLogs";
-
     private static final String BASE_URL = "http://umorili.herokuapp.com/api/get?";
 
     private Handler mWorkerHandler;
     private Handler mMainThreadHandler;
 
-    public static RemotePostService getInstance() {
-        return ServiceInstanceHolder.INSTANCE;
-    }
-
-    private RemotePostService() {
+    public RemotePostService() {
         HandlerThread handlerThread = new HandlerThread("workThread");
         handlerThread.start();
         mWorkerHandler = new Handler(handlerThread.getLooper());
@@ -54,7 +49,7 @@ public class RemotePostService implements IRemotePostService {
             URL url = new URL(requestUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                throw new IOException("Ответ сервера ");
+                throw new IOException("Код ответа сервера :" + connection.getResponseCode());
             }
             Type collectionType = new TypeToken<List<PostModel>>(){}.getType();
             Reader reader = new InputStreamReader(connection.getInputStream(), "UTF-8");
@@ -89,9 +84,5 @@ public class RemotePostService implements IRemotePostService {
                 throw new IllegalArgumentException("Не правильно задана категория");
         }
         return BASE_URL + "site=" + site + "&name=" + rubric;
-    }
-
-    private static class ServiceInstanceHolder {
-        private static final RemotePostService INSTANCE = new RemotePostService();
     }
 }

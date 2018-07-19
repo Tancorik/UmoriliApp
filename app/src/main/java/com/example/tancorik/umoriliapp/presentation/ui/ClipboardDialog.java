@@ -7,43 +7,51 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 
 import com.example.tancorik.umoriliapp.R;
+import com.example.tancorik.umoriliapp.application.UmoriliApp;
+import com.example.tancorik.umoriliapp.presentation.presenter.MainScreenPresenter;
+
+import java.util.Objects;
+
+import javax.inject.Inject;
 
 public class ClipboardDialog extends DialogFragment {
 
     public static final String TAG = "clipboardDialogTag";
-    private static final String INSTANCE_KEY = "clipboardInstanceKey";
     private static final String COPY_TO_CLIPBOARD_MESSAGE = "Хотите копировать данный текст в буффер?";
 
-    public static ClipboardDialog newInstance(String string) {
-        ClipboardDialog clipboardDialog = new ClipboardDialog();
-        Bundle arguments = new Bundle();
-        arguments.putString(INSTANCE_KEY, string);
-        clipboardDialog.setArguments(arguments);
-        return clipboardDialog;
+    @Inject
+    MainScreenPresenter mPresenter;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        UmoriliApp.getComponent().inject(this);
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        String string = getArguments().getString(INSTANCE_KEY);
+        AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(getActivity()));
         builder.setMessage(COPY_TO_CLIPBOARD_MESSAGE)
-                .setPositiveButton(R.string.ok_text, (dialogInterface, i) -> {
-                    copyToClipboard(string);
-                })
-                .setNegativeButton(R.string.cancel_text, (dialogInterface, i) -> {
-
-                });
+                .setPositiveButton(R.string.ok_text, (dialogInterface, i) ->
+                        copyToClipboard(mPresenter.getSelectedPost()))
+                .setNegativeButton(R.string.cancel_text, (dialogInterface, i) -> {});
         return builder.create();
     }
 
     private void copyToClipboard(String string) {
-        ClipboardManager manager = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+        Context context = getContext();
+        if (context == null)
+            return;
+        ClipboardManager manager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData data = ClipData.newPlainText(ClipDescription.MIMETYPE_TEXT_PLAIN, string);
-        manager.setPrimaryClip(data);
+        if (manager != null) {
+            manager.setPrimaryClip(data);
+        }
     }
 }
